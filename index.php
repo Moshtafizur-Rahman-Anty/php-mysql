@@ -15,8 +15,7 @@ if(mysqli_connect_error()) {
 }
 
 $sql = "SELECT *
-        FROM  article";
-
+        FROM  article"; 
 
 $results = mysqli_query($conn, $sql);
 
@@ -62,10 +61,7 @@ if ($results === false) {
         ?>
             <li>
                 <article>
-                    <h2>
-                        <?php 
-                            echo $article['title']; 
-                        ?>
+                    <h2><a href="article.php?id=<?php echo $article['id']; ?>"><?php echo $article['title']; ?></a>
                     </h2>
                     <?php 
                            echo $article['content'];
