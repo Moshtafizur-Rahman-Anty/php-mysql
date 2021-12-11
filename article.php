@@ -14,6 +14,9 @@ if(mysqli_connect_error()) {
 
 }
 
+
+if(isset($_GET['id']) && is_numeric($_GET['id']) ) {
+
 $sql = "SELECT *
         FROM  article
         WHERE id = " . $_GET['id'];
@@ -25,7 +28,11 @@ $results = mysqli_query($conn, $sql);
 if ($results === false) {
     echo mysqli_error($conn);
 } else {
-    $articles = mysqli_fetch_assoc($results); 
+    $article = mysqli_fetch_assoc($results); 
+}
+
+} else {
+    $article = null;   
 }
 
  ?>
@@ -49,11 +56,11 @@ if ($results === false) {
     <main>
 
         <?php 
-        if($articles === null){
+        if($article === null){
     ?>
 
         <p>Article was not found.</p>
-
+~
         <?php 
        } else {
      ?>
@@ -62,11 +69,11 @@ if ($results === false) {
                 <article>
                     <h2>
                         <?php 
-                            echo $articles['title']; 
+                            echo $article['title']; 
                         ?>
                     </h2>
                     <?php 
-                           echo $articles['content'];
+                           echo $article['content'];
                      ?>
                 </article>
             </li>
