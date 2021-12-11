@@ -15,7 +15,8 @@ if(mysqli_connect_error()) {
 }
 
 $sql = "SELECT *
-        FROM  article";
+        FROM  article
+        WHERE id = 1";
 
 
 $results = mysqli_query($conn, $sql);
