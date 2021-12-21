@@ -1,58 +1,41 @@
 <?php
 
-require 'database.php';
+require 'includes/database.php';
 
-if(isset($_GET['id']) && is_numeric($_GET['id']) ) {
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
-$sql = "SELECT *
-        FROM  article
-        WHERE id = " . $_GET['id'];
+    $sql = "SELECT *
+            FROM article
+            WHERE id = " . $_GET['id'];
 
+    $results = mysqli_query($conn, $sql);
 
-$results = mysqli_query($conn, $sql);
+    if ($results === false) {
 
-/* ERROR HANDLING */
-if ($results === false) {
-    echo mysqli_error($conn);
+        echo mysqli_error($conn);
+
+    } else {
+
+        $article = mysqli_fetch_assoc($results);
+
+    }
+
 } else {
-    $article = mysqli_fetch_assoc($results); 
+    $article = null;
 }
 
-} else {
-    $article = null;   
-}
+?>
+<?php require 'includes/header.php'; ?>
 
- ?>
+<?php if ($article === null): ?>
+    <p>Article not found.</p>
+<?php else: ?>
 
+    <article>
+        <h2><?= $article['title']; ?></h2>
+        <p><?= $article['content']; ?></p>
+    </article>
 
+<?php endif; ?>
 
-<?php require 'header.php'; ?>
-
-        <?php 
-        if($article === null){
-    ?>
-
-        <p>Article was not found.</p>
-~
-        <?php 
-       } else {
-     ?>
-        <ul>
-            <li>
-                <article>
-                    <h2>
-                        <?php 
-                            echo $article['title']; 
-                        ?>
-                    </h2>
-                    <?php 
-                           echo $article['content'];
-                     ?>
-                </article>
-            </li>
-            <?php
-        }
-         ?>
-        </ul>
- 
-<?php  require 'footer.php';  ?>
+<?php require 'includes/footer.php'; ?>
