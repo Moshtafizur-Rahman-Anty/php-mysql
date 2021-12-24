@@ -2,30 +2,51 @@
 
 require 'includes/database.php';
 
+$errors = [];
+$title = '';
+$content = '';
+$published_at = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $sql = "INSERT INTO article (title, content, pblished_at)
-            VALUES ('" . mysqli_escape_string( $connn,  $_POST['title'] ) . "',
-                   '"  . mysqli_escape_string( $conn, $_POST['content'] ). "',
-                   '"  . mysqli_escape_string( $conn, $_POST['published_at'] ). "')";
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+    $published_at = $_POST['published_at'];
 
+    if ($title == '') {
+        $errors[] = 'Title is required';
+    }
+    if ($content == '') {
+        $errors[] = 'Content is required';
+    }
 
-    
+    if (empty($errors)) {
 
-    $results = mysqli_query($conn, $sql);
+        $conn = getDB();
 
-    if ($results === false) {
+        $sql = "INSERT INTO article (title, content, pblished_at)
+            VALUES (?,?,?)";
 
-        echo mysqli_error($conn);
+        $stmt = mysqli_prepare($conn, $sql);
 
-    } else {
-      
-      var_dump($sql);  
+        if ($stmt === false) {
 
-      $id = mysqli_insert_id($conn);
-      echo "Inserted record with ID: $id";
+            echo mysqli_error($conn);
 
+        } else {
+
+            mysqli_stmt_bind_param($stmt, 'sss', $title, $content, $published_at);
+
+            if (mysqli_stmt_execute($stmt)) {
+
+                $id = mysqli_insert_id($conn);
+                echo "Inserted record with ID: $id";
+
+            } else {
+                echo mysqli_stmt_error($stmt);
+            }
+
+        }
 
     }
 
@@ -38,24 +59,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <h2>New article</h2>
 
+<?php
+
+if (!empty($errors)) {?>
+
+
+<ul>
+    <?php
+foreach ($errors as $error) {
+    ?>
+        <li><?php echo $error; ?></li>
+    <?php
+}
+    ?>
+</ul>
+<?php
+}
+?>
+
 
 <form method="post">
 
     <div>
         <label for="title">Title</label>
-        <input name="title" id="title" placeholder="Article title">
+        <input name="title" id="title" placeholder="Article title" value="<?php echo htmlspecialchars($title); ?>">
     </div>
 
 
     <div>
         <label for="content">Content</label>
-        <textarea name="content" id="contant" cols="40" rows="4" placeholder="Article content"></textarea>
+        <textarea name="content" id="contant" cols="40" rows="4" placeholder="Article content"  ><?php echo htmlspecialchars($content); ?> </textarea>
     </div>
 
 
     <div>
         <label for="published_at">Publishication date and time</label>
-        <input type="datetime-local" name="published_at" id="published_at">
+        <input type="datetime-local" name="published_at" id="published_at" value="<?php echo htmlspecialchars($published_at); ?>">
     </div>
 
     <button>Add</button>
