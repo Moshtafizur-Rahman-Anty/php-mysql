@@ -20,36 +20,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = 'Content is required';
     }
 
-    if (empty($errors)) {
+    if ($published_at != '') {
+        $date_time = date_create_from_format('Y-m-d H:i:s', $published_at);
 
-        $conn = getDB();
+        if ($date_time === false) {
+            $error[] = 'Invalid date and time';
+        } else {
+            $date_errors = date_get_last_errors();
+            if ($date_erros['warning_count'] > 0) {
+                $error[] = 'Invalid date and time';
 
-        $sql = "INSERT INTO article (title, content, pblished_at)
+            }
+        }
+
+        if (empty($errors)) {
+
+            $conn = getDB();
+
+            $sql = "INSERT INTO article (title, content, pblished_at)
             VALUES (?,?,?)";
 
-        $stmt = mysqli_prepare($conn, $sql);
+            $stmt = mysqli_prepare($conn, $sql);
 
-        if ($stmt === false) {
+            if ($stmt === false) {
 
-            echo mysqli_error($conn);
-
-        } else {
-
-            mysqli_stmt_bind_param($stmt, 'sss', $title, $content, $published_at);
-
-            if (mysqli_stmt_execute($stmt)) {
-
-                $id = mysqli_insert_id($conn);
-                echo "Inserted record with ID: $id";
+                echo mysqli_error($conn);
 
             } else {
-                echo mysqli_stmt_error($stmt);
+
+                if ($published_at == '') {
+                    $published_at = null;
+                }
+
+                mysqli_stmt_bind_param($stmt, 'sss', $title, $content, $published_at);
+
+                if (mysqli_stmt_execute($stmt)) {
+
+                    $id = mysqli_insert_id($conn);
+
+                    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+                        $protocol = 'https';
+                    } else {
+                        $protocol = 'http';
+
+                    }
+
+                    header("Location: $protocol://" . $_SERVER['HTTP_HOST'] . "/php/article.php?id=$id");
+                    exit;
+
+                } else {
+                    echo mysqli_stmt_error($stmt);
+                }
+
             }
 
         }
 
     }
-
 }
 
 ?>
@@ -59,48 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <h2>New article</h2>
 
-<?php
-
-if (!empty($errors)) {?>
-
-
-<ul>
-    <?php
-foreach ($errors as $error) {
-    ?>
-        <li><?php echo $error; ?></li>
-    <?php
-}
-    ?>
-</ul>
-<?php
-}
-?>
-
-
-<form method="post">
-
-    <div>
-        <label for="title">Title</label>
-        <input name="title" id="title" placeholder="Article title" value="<?php echo htmlspecialchars($title); ?>">
-    </div>
-
-
-    <div>
-        <label for="content">Content</label>
-        <textarea name="content" id="contant" cols="40" rows="4" placeholder="Article content"  ><?php echo htmlspecialchars($content); ?> </textarea>
-    </div>
-
-
-    <div>
-        <label for="published_at">Publishication date and time</label>
-        <input type="datetime-local" name="published_at" id="published_at" value="<?php echo htmlspecialchars($published_at); ?>">
-    </div>
-
-    <button>Add</button>
-
-
-</form>
-
+<?php  require 'includes/article-form.php' ?>
 
 <?php require 'includes/footer.php';?>
