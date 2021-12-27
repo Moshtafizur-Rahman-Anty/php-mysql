@@ -1,6 +1,9 @@
 <?php
 
 require 'includes/database.php';
+require 'includes/auth.php';
+
+session_start();
 
 $conn = getDB();
 
@@ -10,9 +13,7 @@ $sql = "SELECT *
 $results = mysqli_query($conn, $sql);
 
 if ($results === false) {
-    echo mysqli_error(
-
-        $conn);
+    echo mysqli_error($conn);
 } else {
     $articles = mysqli_fetch_all($results, MYSQLI_ASSOC);
 }
@@ -20,7 +21,18 @@ if ($results === false) {
 ?>
 <?php require 'includes/header.php';?>
 
-<a href="new-article.php">New artilce</a>
+
+<?php if (isLoggedIn()) {?>
+
+    <p>You are logged in. <a href="logout.php">Log Out</a> </p>
+    <a href="new-article.php">New artilce</a>
+
+    <?php } else {?>
+
+     <p>You are logged out. <a href="login.php">Log In</a></p>
+
+<?php }?>
+
 
 <?php if (empty($articles))
 
@@ -34,8 +46,8 @@ if ($results === false) {
 
     <li>
         <article>
-            <h2><a href="article.php?id=<?=$article['id'];?>"><?= htmlspecialchars($article['title']);?></a></h2>
-            <p><?= htmlspecialchars($article['content']);?></p>
+            <h2><a href="article.php?id=<?=$article['id'];?>"><?=htmlspecialchars($article['title']);?></a></h2>
+            <p><?=htmlspecialchars($article['content']);?></p>
         </article>
 
 

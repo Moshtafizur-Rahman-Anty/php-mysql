@@ -9,9 +9,7 @@ if (isset($_GET['id'])) {
 
     $article = getArticle($conn, $_GET['id']);
 
-}
-
- else {
+} else {
     $article = null;
 }
 
@@ -28,6 +26,9 @@ if (isset($_GET['id'])) {
     </article>
 
     <a href="edit-article.php?id=<?php echo $article['id']; ?>">Edit</a>
+
+    <a href="delete-article.php?id=<?php echo $article['id']; ?>">Delete</a>
+
 
 <?php endif;?>
 
